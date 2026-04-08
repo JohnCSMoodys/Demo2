@@ -28,7 +28,7 @@ present_pct = {c: 100 - missing_pct[c] for c in profile_cols}
 
 # pl_eqt: split measured vs computed
 eqt_missing  = df["pl_eqt"].isna().sum() / n * 100
-eqt_computed = (df["pl_eqt_computed"] == True).sum() / n * 100
+eqt_computed = df["pl_eqt_computed"].sum() / n * 100
 eqt_measured = 100 - eqt_missing - eqt_computed
 
 # Sort all by completeness ascending (worst at top)
@@ -84,8 +84,6 @@ for ax in [ax1, ax2]:
         spine.set_edgecolor(GRID)
 
 # ── Panel 1: Column Completeness Profile ─────────────────────────────────────
-y_pos = np.arange(len(sorted_cols) + 1)  # +1 for pl_eqt row
-
 bar_h = 0.6
 labels_p1 = []
 
@@ -154,14 +152,15 @@ for col in watch_cols:
 
 # Structural break annotations
 for launch_year, label, offset in [(2009, "Kepler", 8), (2018, "TESS", 8)]:
-    if launch_year in valid_years or launch_year > min(valid_years):
+    if min(valid_years) <= launch_year <= max(valid_years):
         ax2.axvline(launch_year, color=PURPLE, linewidth=1.2,
                     linestyle="--", alpha=0.7, zorder=2)
         ax2.text(launch_year + 0.3, 72 + offset, label,
                  fontsize=8, color=PURPLE, rotation=90, va="bottom")
 
 ax2.set_xlim(min(valid_years) - 0.5, max(valid_years) + 0.5)
-ax2.set_ylim(60, 103)
+all_vals = [v for vals in completeness_by_year.values() for v in vals]
+ax2.set_ylim(max(0, min(all_vals) - 5), 103)
 ax2.set_xlabel("Discovery year", fontsize=9, color=SUBTEXT)
 ax2.set_ylabel("% complete (non-null)", fontsize=9, color=SUBTEXT)
 ax2.set_title("Panel 2 — Completeness Over Time (worst offenders)",

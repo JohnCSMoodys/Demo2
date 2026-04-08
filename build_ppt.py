@@ -6,7 +6,6 @@ from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from pptx.util import Inches, Pt
 import io
 
 # ── Palette ───────────────────────────────────────────────────────────────────
@@ -56,7 +55,7 @@ present_pct = {c: 100-missing_pct[c] for c in profile_cols}
 sorted_cols = sorted(profile_cols, key=lambda c: present_pct[c])
 
 eqt_missing  = df["pl_eqt"].isna().sum()/n*100
-eqt_computed = (df["pl_eqt_computed"]==True).sum()/n*100
+eqt_computed = df["pl_eqt_computed"].sum()/n*100
 eqt_measured = 100 - eqt_missing - eqt_computed
 
 watch_cols = ["st_met","pl_orbsmax","sy_dist"]
@@ -126,7 +125,8 @@ def make_panel2():
         ax.axvline(yr, color=PURPLE, linewidth=1.3, linestyle="--", alpha=0.75, zorder=2)
         ax.text(yr+0.3, 63+yo, lbl, fontsize=9, color=PURPLE, rotation=90, va="bottom")
     ax.set_xlim(min(valid_years)-0.5, max(valid_years)+0.5)
-    ax.set_ylim(60, 103)
+    all_vals = [v for vals in completeness_by_year.values() for v in vals]
+    ax.set_ylim(max(0, min(all_vals) - 5), 103)
     ax.set_xlabel("Discovery year", fontsize=9, color=SUBTEXT)
     ax.set_ylabel("% complete (non-null)", fontsize=9, color=SUBTEXT)
     ax.set_title("Completeness Over Time — Worst Offenders", fontsize=13,
@@ -150,7 +150,7 @@ def make_timeline():
     ax.bar(year_counts_all.index, year_counts_all.values, color=colors, alpha=0.85, zorder=3)
     for yr, lbl in [(2009,"Kepler"),(2018,"TESS")]:
         ax.axvline(yr, color=YELLOW, linewidth=1.3, linestyle="--", alpha=0.8, zorder=2)
-        ax.text(yr+0.3, ax.get_ylim()[1]*0.85 if ax.get_ylim()[1]>0 else 100,
+        ax.text(yr+0.3, year_counts_all.values.max()*0.85,
                 lbl, fontsize=9, color=YELLOW, rotation=90, va="top")
     ax.set_xlabel("Discovery year", fontsize=9, color=SUBTEXT)
     ax.set_ylabel("Planets discovered", fontsize=9, color=SUBTEXT)
@@ -205,11 +205,10 @@ def add_img(slide, stream, left, top, width):
     slide.shapes.add_picture(stream, Inches(left), Inches(top), width=Inches(width))
 
 def divider(slide, top=1.15):
-    from pptx.util import Pt as Pt2
     line = slide.shapes.add_connector(1,
         Inches(0.5), Inches(top), Inches(12.83), Inches(top))
     line.line.color.rgb = hex_rgb(GRID)
-    line.line.width = Pt2(1)
+    line.line.width = Pt(1)
 
 # ── Slide 1: Title ────────────────────────────────────────────────────────────
 sl = blank_slide(); bg(sl)
@@ -337,18 +336,18 @@ for i,(color,title,body) in enumerate(risks):
     add_text(sl, title, 0.95, y, 3.5, 0.38, size=13, bold=True, color=color)
     add_text(sl, body,  0.95, y+0.38, 11.5, 0.6, size=11, color=SUBTEXT)
 
-# ── Slide 7: What's next ──────────────────────────────────────────────────────
+# ── Slide 7: What we built ────────────────────────────────────────────────────
 sl = blank_slide(); bg(sl)
-add_text(sl, "What's Next", 0.5, 0.35, 12.0, 0.7,
+add_text(sl, "What We Built", 0.5, 0.35, 12.0, 0.7,
          size=28, bold=True, color=TEXT)
 divider(sl)
 
 steps = [
-    (GREEN,  "1", "Compute per-column missingness rates and pl_eqt_computed split"),
-    (GREEN,  "2", "Compute per-year completeness for the 4 worst-offender columns"),
-    (BLUE,   "3", "Build Panel 1 — horizontal segmented bar chart"),
-    (BLUE,   "4", "Build Panel 2 — line chart with Kepler / TESS annotations"),
-    (PURPLE, "5", "Compose two-panel layout with shared title and legend"),
+    (GREEN,  "1", "Computed per-column missingness rates and pl_eqt_computed split from 1,173 records"),
+    (GREEN,  "2", "Computed per-year completeness for st_met, pl_orbsmax, and sy_dist"),
+    (BLUE,   "3", "Panel 1 — horizontal segmented bar chart (present / computed / missing)"),
+    (BLUE,   "4", "Panel 2 — line chart with Kepler (2009) and TESS (2018) structural break annotations"),
+    (PURPLE, "5", "7-slide deck documenting the full data quality story for a practitioner audience"),
 ]
 for i,(color,num,text) in enumerate(steps):
     y = 1.35 + i*0.95
@@ -356,7 +355,7 @@ for i,(color,num,text) in enumerate(steps):
     add_text(sl, text, 1.1, y+0.08, 11.0, 0.6, size=15, color=TEXT)
 
 add_text(sl,
-    "No implementation decisions (library, format, interactivity) are locked until the Plan phase.",
+    "All outputs are reproducible: run diagram.py for the PNG, build_ppt.py for this deck.",
     0.5, 6.5, 12.3, 0.6, size=12, color=SUBTEXT)
 
 # ── Save ──────────────────────────────────────────────────────────────────────

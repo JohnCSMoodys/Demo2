@@ -11,7 +11,9 @@ This is a design-first data visualization exercise. The primary artifact is `DES
 - `exoplanets.csv` — 1,173 exoplanet records, 19 columns (see `exoplanets_data_dictionary.csv` for schema)
 - `exoplanets_data_dictionary.csv` — column definitions and units
 - `DESIGN.md` — the completed design artifact (goal, audience, hypothesis, viz choice, text diagram, risks)
-- No code exists yet; implementation is the next phase
+- `diagram.py` — generates `design_diagram.png` (two-panel matplotlib figure)
+- `build_ppt.py` — generates `exoplanet_data_quality_audit.pptx` (7-slide deck)
+- `requirements.txt` — pinned dependencies (matplotlib, pandas, numpy, python-pptx)
 
 ## Design Decisions Already Made
 
