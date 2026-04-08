@@ -1,0 +1,21 @@
+column_name,data_type,units,description
+pl_name,string,,Planet name
+star_id,integer,,Foreign key to stars.csv (join on star_id)
+hostname,string,,Host star name
+pl_rade,float,Earth radii,Planet radius
+pl_bmasse,float,Earth masses,Planet mass (best estimate)
+pl_eqt,float,Kelvin,Planet equilibrium temperature
+pl_eqt_computed,boolean,,True if temperature was computed from stellar properties
+disc_year,integer,year,Year of discovery
+discoverymethod,string,,Method used to discover the planet
+ra,float,degrees,Right Ascension (J2000)
+dec,float,degrees,Declination (J2000)
+sy_dist,float,parsecs,Distance of planetary system from Earth
+pl_orbper,float,days,Orbital period
+pl_orbsmax,float,AU,Orbital semi-major axis
+st_teff,float,Kelvin,Stellar effective temperature
+st_rad,float,Solar radii,Stellar radius
+st_mass,float,Solar masses,Stellar mass
+st_met,float,dex,Stellar metallicity ([Fe/H])
+sy_pnum,integer,,Number of planets in the system
+
