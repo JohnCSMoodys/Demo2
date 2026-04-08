@@ -2,3 +2,5 @@ matplotlib==3.10.8
 pandas==2.3.3
 numpy==2.2.6
 python-pptx==1.0.2
+dash==4.1.0
+plotly==6.6.0

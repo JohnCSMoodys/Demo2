@@ -1,15 +1,21 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np
+import data_prep
 
-df = pd.read_csv("exoplanets.csv")
-n = len(df)
+_d = data_prep.load()
+df                   = _d["df"]
+n                    = _d["n"]
+missing_pct          = _d["missing_pct"]
+present_pct          = _d["present_pct"]
+eqt_missing          = _d["eqt_missing"]
+eqt_computed         = _d["eqt_computed"]
+eqt_measured         = _d["eqt_measured"]
+valid_years          = _d["valid_years"]
+completeness_by_year = _d["completeness_by_year"]
 
-# ── Panel 1 data ──────────────────────────────────────────────────────────────
-# Columns to profile (analytically important, ordered worst→best completeness)
-profile_cols = ["st_met", "pl_orbsmax", "sy_dist", "pl_orbper",
-                "st_teff", "st_rad", "st_mass", "pl_bmasse", "pl_rade"]
+profile_cols = data_prep.PROFILE_COLS
+watch_cols   = data_prep.WATCH_COLS
 
 col_labels = {
     "st_met":     "st_met  (stellar metallicity)",
@@ -23,30 +29,8 @@ col_labels = {
     "pl_rade":    "pl_rade  (planet radius)",
 }
 
-missing_pct = {c: df[c].isna().sum() / n * 100 for c in profile_cols}
-present_pct = {c: 100 - missing_pct[c] for c in profile_cols}
-
-# pl_eqt: split measured vs computed
-eqt_missing  = df["pl_eqt"].isna().sum() / n * 100
-eqt_computed = df["pl_eqt_computed"].sum() / n * 100
-eqt_measured = 100 - eqt_missing - eqt_computed
-
 # Sort all by completeness ascending (worst at top)
 sorted_cols = sorted(profile_cols, key=lambda c: present_pct[c])
-
-# ── Panel 2 data ──────────────────────────────────────────────────────────────
-watch_cols = ["st_met", "pl_orbsmax", "sy_dist"]
-years = sorted(df["disc_year"].dropna().unique())
-# Only years with ≥5 planets to keep noise down
-year_counts = df["disc_year"].value_counts()
-valid_years = sorted([y for y in years if year_counts[y] >= 5])
-
-completeness_by_year = {}
-for c in watch_cols:
-    completeness_by_year[c] = [
-        (1 - df[df["disc_year"] == y][c].isna().mean()) * 100
-        for y in valid_years
-    ]
 
 # ── Figure ────────────────────────────────────────────────────────────────────
 DARK_BG   = "#0f1117"
